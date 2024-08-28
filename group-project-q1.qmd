@@ -60,6 +60,8 @@ data_sub <- all_data %>%
 ```{r}
 # plotting this shit
 
+# maybe use scale_y_continuous() to deal with the outlier problem, or maybe not
+
 # k plot
 k_plot <- ggplot(data_sub, aes(x = date, y = k, color = sample_id)) + 
   geom_line(linewidth = 0.5) + 
