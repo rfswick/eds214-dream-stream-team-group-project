@@ -1,0 +1,32 @@
+---
+title: "Luquillo Stream Data"
+format: html
+execute:
+  warning: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+# read in data and clean NAs
+# clean names to lower snake case
+dream_stream_team_path = "/courses/EDS214/group_project/2024/dream_stream_team/raw_data"
+
+Q1 <- read_csv(file.path(dream_stream_team_path, "QuebradaCuenca1-Bisley.csv"), na = "-9999") %>% 
+  clean_names()
+
+Q2 <- read_csv(file.path(dream_stream_team_path, "QuebradaCuenca2-Bisley.csv"), na = "-9999") %>% 
+  clean_names()
+
+Q3 <- read_csv(file.path(dream_stream_team_path, "QuebradaCuenca3-Bisley.csv"), na = "-9999") %>% 
+  clean_names()
+
+PRM <- read_csv(file.path(dream_stream_team_path, "RioMameyesPuenteRoto.csv"), na = "-9999") %>% 
+  clean_names()
+```
+
