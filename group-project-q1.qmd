@@ -10,6 +10,8 @@ editor_options:
 ```{r}
 library(tidyverse)
 library(janitor)
+library(plyr)
+library(lubridate)
 ```
 
 ```{r}
@@ -18,15 +20,44 @@ library(janitor)
 dream_stream_team_path = "/courses/EDS214/group_project/2024/dream_stream_team/raw_data"
 
 Q1 <- read_csv(file.path(dream_stream_team_path, "QuebradaCuenca1-Bisley.csv"), na = "-9999") %>% 
-  clean_names()
+  clean_names() |>
+  mutate(date = mdy(sample_date))
 
 Q2 <- read_csv(file.path(dream_stream_team_path, "QuebradaCuenca2-Bisley.csv"), na = "-9999") %>% 
-  clean_names()
+  clean_names() |>
+  mutate(sample_date = str_replace(sample_date,
+                                   pattern = " 0:00",
+                                   replacement = "")) |>
+  mutate(date = mdy(sample_date))
 
 Q3 <- read_csv(file.path(dream_stream_team_path, "QuebradaCuenca3-Bisley.csv"), na = "-9999") %>% 
-  clean_names()
+  clean_names() |>
+  mutate(date = mdy(sample_date))
 
 PRM <- read_csv(file.path(dream_stream_team_path, "RioMameyesPuenteRoto.csv"), na = "-9999") %>% 
-  clean_names()
+  clean_names() |>
+  mutate(date = mdy(sample_date))
 ```
+
+```{r}
+# combine all datasets using fulljoin 
+all_data <- join_all(list(Q1, Q2, Q3, PRM), by = 'sample_id', type = 'full')
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
