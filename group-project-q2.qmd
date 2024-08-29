@@ -21,3 +21,28 @@ library(patchwork)
 
 ```
 
+```{r}
+# load USGS API
+library(dataRetrieval)
+```
+
+```{r}
+# Set parameters this query
+# Site 50063800 - Rio Espiritu Santo NR Rio Grande, PR
+
+siteNumber <- "50063800"
+parameterCd <- "00060" # Discharge
+startDate <- "2017-09-09" # # Hurricane Maria occurred on September 16-30, 2017 and we are querying for data from a week before to a week after
+endDate <- "2017-10-07"
+```
+
+```{r}
+# Query the API for site discharge
+discharge_espiritu <- readNWISdv(siteNumber, parameterCd, startDate, endDate)
+
+# clean variable names
+names(discharge_espiritu)
+discharge_espiritu <- 
+  rename(discharge_espiritu, c("X_00060_00003" = "discharge_ft3_s"))
+```
+
