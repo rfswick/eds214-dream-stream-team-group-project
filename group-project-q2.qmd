@@ -1,0 +1,83 @@
+---
+title: "Hurricane Maria Impacts on Stream Quality"
+format: html
+execute:
+  warning: FALSE
+---
+
+```{r}
+# load packages
+library(tidyverse)
+library(janitor)
+library(plyr)
+library(lubridate)
+library(patchwork)
+library(dplyr)
+library(plyr)
+```
+
+```{r}
+# read in and clean data
+# change all NAs to be stored in dataframe the same way
+# use clean names to normalize column naming conventions to lower_snake_case
+
+RES <- read_csv(file.path("/courses/EDS214/group_project/2024/dream_stream_team/raw_data", "RioEspirituSanto.csv"), 
+                na = "-9999") |>
+  clean_names() |>
+  dplyr::rename(date = sample_date)
+```
+
+```{r}
+# load USGS API
+library(dataRetrieval)
+```
+
+```{r}
+# Set parameters this query
+# Site 50063800 - Rio Espiritu Santo NR Rio Grande, PR
+
+siteNumber <- "50063800"
+parameterCd <- "00060" # Discharge
+startDate <- "2017-09-09" # # Hurricane Maria occurred on September 16-30, 2017 and we are querying for data from a week before to a week after
+endDate <- "2017-10-07"
+```
+
+```{r}
+# Query the API for site discharge
+# clean variable names
+discharge_espiritu <- readNWISdv(siteNumber, parameterCd, startDate, endDate) |>
+  dplyr::rename(date = Date) |>
+  dplyr::rename(discharge_ft3_s = X_00060_00003)
+```
+
+```{r}
+# combine both data frames (discharge_espiritu, RES) using fulljoin 
+combined_data <- full_join(discharge_espiritu, RES, by = 'date')
+```
+
+```{r}
+# filter date to appropriate date range (2017-09-09 to 2017-10-07)
+# select only comlumns needed for graphs (pH, pO4_p, conductivity, doc)
+
+quality_rainfall_data <- combined_data |>
+  select(date, discharge_ft3_s, p_h, cond, po4_p, doc)
+  dplyr::filter(date >= "2017-09-09" & date <= "2017-10-07")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
