@@ -1,0 +1,23 @@
+---
+title: "Hurricane Maria Impacts on Stream Quality"
+format: html
+execute:
+  warning: FALSE
+---
+
+```{r}
+# load packages
+library(tidyverse)
+library(janitor)
+library(plyr)
+library(lubridate)
+library(patchwork)
+```
+
+```{r}
+# read in and clean data
+# change all NAs to be stored in dataframe the same way
+# use clean names to normalize column naming conventions to lower_snake_case
+
+```
+
