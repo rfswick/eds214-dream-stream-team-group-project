@@ -7,6 +7,9 @@ editor_options:
   chunk_output_type: console
 ---
 
+# Quarto Title Here
+
+### Here we are inserting out libraries
 ```{r}
 library(tidyverse)
 library(janitor)
@@ -15,6 +18,7 @@ library(lubridate)
 library(patchwork)
 ```
 
+### Next, we called in our data and cleaned it
 ```{r}
 # read in data and clean NAs
 # clean names to lower snake case
@@ -40,6 +44,7 @@ PRM <- read_csv(file.path(dream_stream_team_path, "RioMameyesPuenteRoto.csv"), n
   mutate(date = mdy(sample_date))
 ```
 
+### Following, we joined it all together
 ```{r}
 # combine all datasets using fulljoin 
 all_data <- join_all(list(Q1, Q2, Q3, PRM), by = 'sample_id', type = 'full')
@@ -47,36 +52,60 @@ all_data <- join_all(list(Q1, Q2, Q3, PRM), by = 'sample_id', type = 'full')
 
 ```
 
-
+### Next, we subsetted out data
+##### We also converted ug to mg in NO_3
 ```{r}
 # select()
 # k, no3, date, sample_id
+# also changed the no3 from ug to mg
 
 data_sub <- all_data %>% 
   select(sample_id, date, k, no3) %>% 
-  filter(date >= "1988-01-01" & date <= "1994-12-31")
+  filter(date >= "1988-01-01" & date <= "1994-12-31") %>%
+  mutate(no3 = no3 / 1000)
+
 ```
 
+### We make our plots here
 ```{r}
-# plotting this shit
 
 # maybe use scale_y_continuous() to deal with the outlier problem, or maybe not
 
 # k plot
 k_plot <- ggplot(data_sub, aes(x = date, y = k, color = sample_id)) + 
   geom_line(linewidth = 0.5) + 
-  labs(title = "k plot")
+  theme(legend.position = "none") + 
+  labs(y = "K (mg/L)")  + 
+  scale_color_manual(labels = c("Site 1", "Site 2", "Site 3", "Site 4"), values = c("#f6a39d", "#a5c655", "#0ec2c7", "#d39dfb"))
 
 # no3 plot
 no3_plot <- ggplot(data_sub, aes(x = date, y = no3, color = sample_id)) + 
   geom_line(linewidth = 0.5) + 
-  labs(title = "no3 plot")
+  theme(legend.position = c(0.9, 0.6)) + 
+  labs(y = "NO^3 (mg/L)", color = "Study Area") + 
+  scale_color_manual(labels = c("Site 1", "Site 2", "Site 3", "Site 4"), values = c("#f6a39d", "#a5c655", "#0ec2c7", "#d39dfb"))
+
 ```
 
+# REMINDER TO REMOVE THIS LATER
+```{r}
+# testing something
+
+ggplot(data_sub, aes(x = date, y = k, color = sample_id)) + 
+  geom_line(linewidth = 0.5) + 
+  ggplot(data_sub, aes(x = date, y = no3, color = sample_id)) + 
+  geom_line(linewidth = 0.5)
+
+```
+
+### Here, we use patchwork to facet the plots
 ```{r}
 # facet it
 
-k_plot / no3_plot
+patch_graph <- (k_plot + theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank())) / (no3_plot + theme(axis.title.x = element_blank()))
+
+patchGrob <- patchwork::patchworkGrob(patch_graph)
+gridExtra::grid.arrange(patchGrob, bottom = "Date", top = "NO^3-N and K concentrations in the forest from 1988 to 1994")
 ```
 
 
