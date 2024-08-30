@@ -73,20 +73,29 @@ quality_rainfall_data <- combined_data |>
 ```
 
 ```{r}
+# i was testing multiple ways to ready the data to be faceted
+# and i decided to use the pivot method since apparently melt is deprecated
+# ill get rid of the melt stuff later though
+
 melt_test <- melt(quality_rainfall_data, id = "date", measure = c("discharge_ft3_s", "p_h", "cond", "po4_p", "doc"))
 
-pivot_test <- quality_rainfall_data %>% select(date, discharge_ft3_s, p_h, cond, po4_p, doc) %>%
+qrd_pivot <- quality_rainfall_data %>% select(date, discharge_ft3_s, p_h, cond, po4_p, doc) %>%
   pivot_longer(discharge_ft3_s:doc, names_to = "variable", values_to = "value")
 ```
 
 
-
 ```{r}
+# i was practicing graphing with the melt method
+# will delete later
+
 ggplot(data = subset(melt_test, !is.na(value)), aes(y = value, x = date, color = variable)) + geom_point() + facet_wrap(vars(variable))
 ```
 
+
 ```{r}
-ggplot(data = subset(pivot_test, !is.na(value)), aes(y = value, x = date, color = variable)) + geom_point(size = 4) + facet_wrap(vars(variable))
+# this is the graph we'll use
+
+ggplot(data = subset(pivot_test, !is.na(value)), aes(y = value, x = date, color = variable)) + geom_point(size = 4, show.legend = FALSE) + facet_wrap(vars(variable), strip.position = "bottom") + scale_x_date(position = "top")
 ```
 
 
