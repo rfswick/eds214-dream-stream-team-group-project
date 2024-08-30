@@ -8,7 +8,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-## We wanted to investigate the impacts of Hurricane Maria (September 16-20, 2017) on several variables at the Rio Espiritu Santo site in Puerto Rico. 
+## We wanted to investigate the impacts of Hurricane Jeanne (September 13-28, 2004) on stream chemistry data collected from Puerto Rico. We chose to look at water chemistry and discharge at the Rio Espiritu Santo site. 
 
 ```{r}
 rm(list = ls())
@@ -27,16 +27,18 @@ library(plyr)
 library(reshape2)
 ```
 
-### Read in the stream chemistry data for the Rio Espiritu site
+### Read in the stream chemistry data for Rio Espiritu
 
 ```{r}
 # read in and clean data
 # change all NAs to be stored in data frame the same way
 # use clean names to normalize column naming conventions to lower_snake_case
-
+# filter for date range - Hurricane Jeanne occurred on September 13-28, 2004 and we are querying for data +/- a month
 RES <- read_csv(file.path("/courses/EDS214/group_project/2024/dream_stream_team/raw_data", "RioEspirituSanto.csv"), na = "-9999") %>% 
   clean_names() %>% 
-  dplyr::rename(date = sample_date)
+  dplyr::rename(date = sample_date) %>%
+  dplyr::filter(date >= "2004-08-13" & date <= "2004-10-28")
+
 ```
 
 ### Load USGS API 
@@ -45,23 +47,26 @@ RES <- read_csv(file.path("/courses/EDS214/group_project/2024/dream_stream_team/
 library(dataRetrieval)
 ```
 
+### Set paramaters and query the API
+
 ```{r}
 # Set parameters for this query
 # Site 50063800 - Rio Espiritu Santo NR Rio Grande, PR
-
 siteNumber <- "50063800"
 parameterCd <- "00060" # Discharge
-startDate <- "2017-09-09" # Hurricane Maria occurred on September 16-30, 2017 and we are querying for data from a week before to a week after
-endDate <- "2017-10-07"
+startDate <- "2004-08-13" 
+endDate <- "2004-10-28"
 ```
 
 ```{r}
 # Query the API for site discharge
 # clean variable names
-discharge_espiritu <- readNWISdv(siteNumber, parameterCd, startDate, endDate) |>
-  dplyr::rename(date = Date) |>
+discharge_espiritu <- readNWISdv(siteNumber, parameterCd, startDate, endDate) %>% 
+  dplyr::rename(date = Date) %>% 
   dplyr::rename(discharge_ft3_s = X_00060_00003)
 ```
+
+### Ready the data for plotting
 
 ```{r}
 # combine both data frames (discharge_espiritu, RES) using `full_join()`
@@ -69,60 +74,38 @@ combined_data <- full_join(discharge_espiritu, RES, by = 'date')
 ```
 
 ```{r}
-# filter date to appropriate date range (2017-09-09 to 2017-10-07)
-# select only columns needed for graphs (pH, pO4_p, conductivity, doc)
-# mutated some columns to numeric because they were character
-
-quality_rainfall_data <- combined_data |>
-  select(date, discharge_ft3_s, p_h, cond, po4_p, doc) |>
-  dplyr::filter(date >= "2017-09-09" & date <= "2017-10-07") |>
-  mutate(p_h = as.numeric(p_h), 
-         cond = as.numeric(cond), 
-         po4_p = as.numeric(po4_p),
-         doc = as.numeric(doc))
+# filter date to desired range
+# select columns
+chem_discharge_data <- combined_data %>% 
+  select(date, discharge_ft3_s, cond, k, no3_n) %>% 
+  dplyr::filter(date >= "2004-08-30" & date <= "2004-10-12") %>% 
+  mutate(cond = as.numeric(cond),
+         k = as.numeric(k),
+         no3_n = as.numeric(no3_n))
 ```
 
 ```{r}
-# i was testing multiple ways to ready the data to be faceted
-# i decided to use the pivot method since apparently melt is deprecated
-
-qrd_pivot <- quality_rainfall_data %>% 
-  select(date, discharge_ft3_s, p_h, cond, po4_p, doc) %>%
-  pivot_longer(discharge_ft3_s:doc, names_to = "variable", values_to = "value")
+# tidy the combined chemistry to a long format
+chem_discharge_long <- chem_discharge_data %>%
+  select(date, discharge_ft3_s, cond, k, no3_n) %>%
+  tidyr::pivot_longer(discharge_ft3_s:no3_n, names_to = "variable", values_to = "value")
 ```
 
-```{r}
-# this is the graph we'll use
-# im kinda just guessing the units here, hopefully ill figure them out later
+### Plot data
 
-# labeller argument is weird but i guess it kind of works like this
-el_label <- c(`cond` = "Conductivity (S/m)",
+```{r}
+plot_label <- c(`cond` = "Conductivity",
               `discharge_ft3_s` = "Discharge (ft^3/s)",
-              `doc` = "Dissolved Organic Carbon (ppb??)",
-              `p_h` = "pH",
-              `po4_p` = "PO4-P (mg/L)")
+              `k` = "Potassium (mg/l)",
+              `no3_n` = "Nitrate (ug/l)")
 
-
-ggplot(data = subset(qrd_pivot, !is.na(value)), 
-       aes(y = value, x = date, color = variable)) + 
-  geom_point(size = 4, show.legend = FALSE) + 
-  facet_wrap(vars(variable), strip.position = "bottom", labeller = as_labeller(el_label)) + 
-  scale_x_date(position = "top") + 
-  xlab("Date")
+ggplot(chem_discharge_long, 
+       aes(x = date, y = value, color = variable)) + 
+  geom_point(show.legend = FALSE) + 
+  facet_wrap(~variable, ncol = 2, 
+             strip.position = "top", 
+             scales = "free", 
+             labeller = as_labeller(plot_label)) + 
+  xlab("Date (August 13, 2004 - October 28, 2004)") + 
+  labs(title = "Hurricane Jeanne Stream Discharge and Chemistry Analysis")
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
