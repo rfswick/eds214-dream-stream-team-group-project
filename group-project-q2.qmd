@@ -16,6 +16,7 @@ library(lubridate)
 library(patchwork)
 library(dplyr)
 library(plyr)
+library(reshape2)
 ```
 
 ```{r}
@@ -60,13 +61,33 @@ combined_data <- full_join(discharge_espiritu, RES, by = 'date')
 ```{r}
 # filter date to appropriate date range (2017-09-09 to 2017-10-07)
 # select only comlumns needed for graphs (pH, pO4_p, conductivity, doc)
+# mutated some columns to numeric because they were character
 
 quality_rainfall_data <- combined_data |>
   select(date, discharge_ft3_s, p_h, cond, po4_p, doc) |>
-  dplyr::filter(date >= "2017-09-09" & date <= "2017-10-07")
+  dplyr::filter(date >= "2017-09-09" & date <= "2017-10-07") |>
+  mutate(p_h = as.numeric(p_h), 
+         cond = as.numeric(cond), 
+         po4_p = as.numeric(po4_p),
+         doc = as.numeric(doc))
+```
+
+```{r}
+melt_test <- melt(quality_rainfall_data, id = "date", measure = c("discharge_ft3_s", "p_h", "cond", "po4_p", "doc"))
+
+pivot_test <- quality_rainfall_data %>% select(date, discharge_ft3_s, p_h, cond, po4_p, doc) %>%
+  pivot_longer(discharge_ft3_s:doc, names_to = "variable", values_to = "value")
 ```
 
 
+
+```{r}
+ggplot(data = subset(melt_test, !is.na(value)), aes(y = value, x = date, color = variable)) + geom_point() + facet_wrap(vars(variable))
+```
+
+```{r}
+ggplot(data = subset(pivot_test, !is.na(value)), aes(y = value, x = date, color = variable)) + geom_point(size = 4) + facet_wrap(vars(variable))
+```
 
 
 
