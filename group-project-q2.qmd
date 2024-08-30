@@ -112,6 +112,25 @@ ggplot(data = subset(qrd_pivot, !is.na(value)),
 ```
 
 
+```{r}
+
+ggplot(quality_rainfall_data, aes(x=date)) +
+  
+  geom_bar(aes(y = discharge_ft3_s), stat="identity", size = .1) + 
+  geom_point(aes(y = doc * 1000), size=2, color = "red") + 
+  geom_point(aes(y = p_h * 1000), size=2, color = "blue") + 
+  geom_point(aes(y = po4_p * 1000), size=2, color = "green") +
+  
+  scale_y_continuous(
+    
+    # Features of the first axis
+    name = "discharge",
+    
+    # Add a second axis and specify its features
+    sec.axis = sec_axis(~.*0.001, name="parameter_values")
+  ) + 
+  scale_color_manual(labels = c("discharge", "doc","p_h","po4_4"), values)
+```
 
 
 
