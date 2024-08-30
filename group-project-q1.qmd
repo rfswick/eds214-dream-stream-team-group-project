@@ -9,6 +9,11 @@ editor_options:
 
 # Quarto Title Here
 
+```{r}
+rm(list = ls())
+```
+
+
 ### Here we are inserting out libraries
 ```{r}
 library(tidyverse)
