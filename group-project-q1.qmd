@@ -87,16 +87,6 @@ no3_plot <- ggplot(data_sub, aes(x = date, y = no3, color = sample_id)) +
 
 ```
 
-# REMINDER TO REMOVE THIS LATER
-```{r}
-# testing something
-
-ggplot(data_sub, aes(x = date, y = k, color = sample_id)) + 
-  geom_line(linewidth = 0.5) + 
-  ggplot(data_sub, aes(x = date, y = no3, color = sample_id)) + 
-  geom_line(linewidth = 0.5)
-
-```
 
 ### Here, we use patchwork to facet the plots
 ```{r}
