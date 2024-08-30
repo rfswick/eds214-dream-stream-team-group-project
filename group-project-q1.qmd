@@ -1,20 +1,19 @@
 ---
 title: "Luquillo Stream Data"
 format: html
+author: Joshua Cohen, Nicole Pepper, Leilanie Rubinstein, Rachel Swick
 execute:
   warning: false
 editor_options: 
   chunk_output_type: console
 ---
 
-# Quarto Title Here
-
 ```{r}
 rm(list = ls())
 ```
 
+### Load packages
 
-### Here we are inserting out libraries
 ```{r}
 library(tidyverse)
 library(janitor)
@@ -23,59 +22,52 @@ library(lubridate)
 library(patchwork)
 ```
 
-### Next, we called in our data and cleaned it
+### Load in and clean data
+
 ```{r}
 # read in data and clean NAs
 # clean names to lower snake case
 dream_stream_team_path = "/courses/EDS214/group_project/2024/dream_stream_team/raw_data"
 
 Q1 <- read_csv(file.path(dream_stream_team_path, "QuebradaCuenca1-Bisley.csv"), na = "-9999") %>% 
-  clean_names() |>
+  clean_names() %>% 
   mutate(date = mdy(sample_date))
 
 Q2 <- read_csv(file.path(dream_stream_team_path, "QuebradaCuenca2-Bisley.csv"), na = "-9999") %>% 
-  clean_names() |>
+  clean_names() %>% 
   mutate(sample_date = str_replace(sample_date,
                                    pattern = " 0:00",
-                                   replacement = "")) |>
+                                   replacement = "")) %>% 
   mutate(date = mdy(sample_date))
 
 Q3 <- read_csv(file.path(dream_stream_team_path, "QuebradaCuenca3-Bisley.csv"), na = "-9999") %>% 
-  clean_names() |>
+  clean_names() %>% 
   mutate(date = mdy(sample_date))
 
 PRM <- read_csv(file.path(dream_stream_team_path, "RioMameyesPuenteRoto.csv"), na = "-9999") %>% 
-  clean_names() |>
+  clean_names() %>% 
   mutate(date = mdy(sample_date))
 ```
 
-### Following, we joined it all together
+### Join the individual site data together
+
 ```{r}
-# combine all datasets using fulljoin 
+# combine all data sets using `full_join()`
 all_data <- join_all(list(Q1, Q2, Q3, PRM), by = 'sample_id', type = 'full')
-
-
 ```
 
-### Next, we subsetted out data
-##### We also converted ug to mg in NO_3
-```{r}
-# select()
-# k, no3, date, sample_id
-# also changed the no3 from ug to mg
+### Subset data and convert units
 
+```{r}
 data_sub <- all_data %>% 
   select(sample_id, date, k, no3) %>% 
   filter(date >= "1988-01-01" & date <= "1994-12-31") %>%
   mutate(no3 = no3 / 1000)
-
 ```
 
-### We make our plots here
+### Plot data
+
 ```{r}
-
-# maybe use scale_y_continuous() to deal with the outlier problem, or maybe not
-
 # k plot
 k_plot <- ggplot(data_sub, aes(x = date, y = k, color = sample_id)) + 
   geom_line(linewidth = 0.5) + 
@@ -92,11 +84,9 @@ no3_plot <- ggplot(data_sub, aes(x = date, y = no3, color = sample_id)) +
 
 ```
 
-
 ### Here, we use patchwork to facet the plots
-```{r}
-# facet it
 
+```{r}
 patch_graph <- (k_plot + theme(axis.title.x = element_blank()) + scale_x_date(position = "top")) / (no3_plot + theme(axis.title.x = element_blank(), axis.ticks.x = element_blank(), axis.text.x = element_blank()))
 
 patchGrob <- patchwork::patchworkGrob(patch_graph)
