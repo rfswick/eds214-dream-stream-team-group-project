@@ -8,6 +8,12 @@ editor_options:
 ---
 
 ```{r}
+# remove everything from the env whenever we run full doc
+rm(list = ls())
+```
+
+
+```{r}
 # load packages
 library(tidyverse)
 library(janitor)
@@ -74,28 +80,32 @@ quality_rainfall_data <- combined_data |>
 
 ```{r}
 # i was testing multiple ways to ready the data to be faceted
-# and i decided to use the pivot method since apparently melt is deprecated
-# ill get rid of the melt stuff later though
-
-melt_test <- melt(quality_rainfall_data, id = "date", measure = c("discharge_ft3_s", "p_h", "cond", "po4_p", "doc"))
+# i decided to use the pivot method since apparently melt is deprecated
 
 qrd_pivot <- quality_rainfall_data %>% select(date, discharge_ft3_s, p_h, cond, po4_p, doc) %>%
   pivot_longer(discharge_ft3_s:doc, names_to = "variable", values_to = "value")
 ```
 
 
-```{r}
-# i was practicing graphing with the melt method
-# will delete later
-
-ggplot(data = subset(melt_test, !is.na(value)), aes(y = value, x = date, color = variable)) + geom_point() + facet_wrap(vars(variable))
-```
-
 
 ```{r}
 # this is the graph we'll use
+# im kinda just guessing the units here, hopefully ill figure them out later
 
-ggplot(data = subset(pivot_test, !is.na(value)), aes(y = value, x = date, color = variable)) + geom_point(size = 4, show.legend = FALSE) + facet_wrap(vars(variable), strip.position = "bottom") + scale_x_date(position = "top")
+# labeller argument is weird but i guess it kind of works like this
+el_label <- c(`cond` = "Conductivity (S/m)",
+              `discharge_ft3_s` = "Discharge (ft^3/s)",
+              `doc` = "Dissolved Organic Carbon (ppb??)",
+              `p_h` = "pH",
+              `po4_p` = "PO4-P (mg/L)")
+
+
+ggplot(data = subset(qrd_pivot, !is.na(value)), 
+       aes(y = value, x = date, color = variable)) + 
+  geom_point(size = 4, show.legend = FALSE) + 
+  facet_wrap(vars(variable), strip.position = "bottom", labeller = as_labeller(el_label)) + 
+  scale_x_date(position = "top") + 
+  xlab("Date")
 ```
 
 
