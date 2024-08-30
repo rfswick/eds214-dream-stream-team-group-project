@@ -85,13 +85,13 @@ no3_plot <- ggplot(data_sub, aes(x = date, y = no3, color = sample_id)) +
 
 ```
 
-### Here, we use patchwork to facet the plots
+### Here, we use Patchwork to facet the plots
 
 ```{r}
 patch_graph <- (k_plot + theme(axis.title.x = element_blank()) + scale_x_date(position = "top")) / (no3_plot + theme(axis.title.x = element_blank(), axis.ticks.x = element_blank(), axis.text.x = element_blank()))
 
 patchGrob <- patchwork::patchworkGrob(patch_graph)
-gridExtra::grid.arrange(patchGrob, bottom = "Date", top = "NO^3-N and K concentrations in the forest from 1988 to 1994")
+gridExtra::grid.arrange(patchGrob, bottom = "Date", top = "NO^3-N and K Concentrations in the Forest from 1988 to 1994")
 ```
 
 
