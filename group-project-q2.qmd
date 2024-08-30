@@ -91,8 +91,6 @@ qrd_pivot <- quality_rainfall_data %>%
   pivot_longer(discharge_ft3_s:doc, names_to = "variable", values_to = "value")
 ```
 
-
-
 ```{r}
 # this is the graph we'll use
 # im kinda just guessing the units here, hopefully ill figure them out later
