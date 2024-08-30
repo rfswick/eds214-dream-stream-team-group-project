@@ -3,6 +3,8 @@ title: "Hurricane Maria Impacts on Stream Quality"
 format: html
 execute:
   warning: FALSE
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
@@ -60,7 +62,7 @@ combined_data <- full_join(discharge_espiritu, RES, by = 'date')
 # select only comlumns needed for graphs (pH, pO4_p, conductivity, doc)
 
 quality_rainfall_data <- combined_data |>
-  select(date, discharge_ft3_s, p_h, cond, po4_p, doc)
+  select(date, discharge_ft3_s, p_h, cond, po4_p, doc) |>
   dplyr::filter(date >= "2017-09-09" & date <= "2017-10-07")
 ```
 
