@@ -20,6 +20,7 @@ library(janitor)
 library(plyr)
 library(lubridate)
 library(patchwork)
+library(here)
 ```
 
 ### Load in and clean data
@@ -73,15 +74,17 @@ soft_col <- rgb(235, 235, 235, 200, maxColorValue = 255)
 
 # k plot
 k_plot <- ggplot(data_sub, aes(x = date, y = k, color = sample_id)) + 
-  geom_line(linewidth = 0.5) + 
-  theme(legend.position = "none", panel.background = element_rect(fill = "white"), panel.grid = element_line(color = soft_col)) + 
-  labs(y = "K (mg/L)")
+  geom_line(linewidth = 0.5) +  
+  theme(legend.position = "none", panel.background = element_rect(fill = "white"), panel.grid = element_line(color = soft_col))  + 
+  labs(y = "K (mg/L)") +
+  geom_vline(xintercept = as.Date("1989-09-18"), linetype = "dashed")
 
 # no3 plot
 no3_plot <- ggplot(data_sub, aes(x = date, y = no3, color = sample_id)) + 
   geom_line(linewidth = 0.5) + 
   theme(legend.position = c(0.9, 0.6), panel.background = element_rect(fill = "white"), panel.grid = element_line(color = soft_col)) + 
-  labs(y = "NO^3 (mg/L)", color = "Sample Site")
+  labs(y = "NO^3 (mg/L)", color = "Sample Site") +
+  geom_vline(xintercept = as.Date("1989-09-18"), linetype = "dashed")
 
 ```
 
@@ -96,6 +99,9 @@ gridExtra::grid.arrange(patchGrob, bottom = "Date", top = "NO^3-N and K Concentr
 
 
 
+```{r}
+ggsave(here("/Users", "jpcohen", "eds_214_group_project", "eds214-dream-stream-team-group-project", "group-project-q1_files", "figs", "replicate.png"), plot = patchGrob, width = 15)
+```
 
 
 
