@@ -62,8 +62,7 @@ all_data <- join_all(list(Q1, Q2, Q3, PRM), by = 'sample_id', type = 'full')
 ```{r}
 data_sub <- all_data %>% 
   select(sample_id, date, k, no3) %>% 
-  filter(date >= "1988-01-01" & date <= "1994-12-31") %>%
-  mutate(no3 = no3 / 1000)
+  filter(date >= "1988-01-01" & date <= "1994-12-31")
 ```
 
 ### Plot data
@@ -75,14 +74,18 @@ soft_col <- rgb(235, 235, 235, 200, maxColorValue = 255)
 # k plot
 k_plot <- ggplot(data_sub, aes(x = date, y = k, color = sample_id)) + 
   geom_line(linewidth = 0.5) +  
-  theme(legend.position = "none", panel.background = element_rect(fill = "white"), panel.grid = element_line(color = soft_col))  + 
+  theme(legend.position = "none", 
+        panel.background = element_rect(fill = "white"), 
+        panel.grid = element_line(color = soft_col))  + 
   labs(y = "K (mg/L)") +
   geom_vline(xintercept = as.Date("1989-09-18"), linetype = "dashed")
 
 # no3 plot
 no3_plot <- ggplot(data_sub, aes(x = date, y = no3, color = sample_id)) + 
   geom_line(linewidth = 0.5) + 
-  theme(legend.position = c(0.9, 0.6), panel.background = element_rect(fill = "white"), panel.grid = element_line(color = soft_col)) + 
+  theme(legend.position = c(0.9, 0.6), 
+        panel.background = element_rect(fill = "white"), 
+        panel.grid = element_line(color = soft_col)) + 
   labs(y = "NO^3 (mg/L)", color = "Sample Site") +
   geom_vline(xintercept = as.Date("1989-09-18"), linetype = "dashed")
 
@@ -93,14 +96,14 @@ no3_plot <- ggplot(data_sub, aes(x = date, y = no3, color = sample_id)) +
 ```{r}
 patch_graph <- (k_plot + theme(axis.title.x = element_blank()) + scale_x_date(position = "top")) / (no3_plot + theme(axis.title.x = element_blank(), axis.ticks.x = element_blank(), axis.text.x = element_blank()))
 
-patchGrob <- patchwork::patchworkGrob(patch_graph)
+reproduced <- patchwork::patchworkGrob(patch_graph)
 gridExtra::grid.arrange(patchGrob, bottom = "Date", top = "NO^3-N and K Concentrations in the Forest from 1988 to 1994")
 ```
 
 
 
 ```{r}
-ggsave(here("/Users", "jpcohen", "eds_214_group_project", "eds214-dream-stream-team-group-project", "group-project-q1_files", "figs", "replicate.png"), plot = patchGrob, width = 15)
+ggsave(here("~/Courses/EDS214/group_project/2024/dream-stream-team/figs", "reproduced.png"), height = 6, width = 15)
 ```
 
 
